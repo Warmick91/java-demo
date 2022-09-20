@@ -2,6 +2,7 @@ package edu.damago.java.struct;
 
 /**
  * Demo for math operations.
+ * @author Sascha Baumeister
  */
 public class MathDemo {
 

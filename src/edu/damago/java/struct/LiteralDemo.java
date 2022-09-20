@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /**
  * Demo for literal values.
+ * @author Sascha Baumeister
  */
 public class LiteralDemo {
 

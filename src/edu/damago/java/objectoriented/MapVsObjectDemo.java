@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * Demo comparing maps and instances.
+ * @author Sascha Baumeister
  */
 public class MapVsObjectDemo {
 	static public enum Gender { DIVERSE, FEMALE, MALE }
@@ -93,6 +94,9 @@ public class MapVsObjectDemo {
 			this.birthDay = birthDay;
 		}
 
+		/**
+		 * Returns this object in JSON representation.
+		 */
 		@Override
 		public String toString () {
 			return String.format("{ 'email': '%s', 'surname': '%s', 'forename': '%s', 'gender': '%s', 'birthDay': '%s'}", this.email, this.surname, this.forename, this.gender, this.birthDay);

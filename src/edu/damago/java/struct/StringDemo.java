@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 /**
  * Demo for string values.
+ * @author Sascha Baumeister
  */
 public class StringDemo {
 

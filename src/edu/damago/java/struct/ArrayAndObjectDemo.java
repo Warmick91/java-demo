@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /**
  * Demo for arrays and objects.
+ * @author Sascha Baumeister
  */
 public class ArrayAndObjectDemo {
 

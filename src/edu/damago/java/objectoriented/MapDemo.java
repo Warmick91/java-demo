@@ -6,6 +6,7 @@ import java.util.Map;
 
 /**
  * Demo for map usage.
+ * @author Sascha Baumeister
  */
 public class MapDemo {
 

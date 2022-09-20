@@ -1,21 +1,26 @@
 package edu.damago.java.tool;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
+
+/**
+ * Facade providing operations related to resources.   
+ * @author Sascha Baumeister
+ */
 public class Ressources {
 
 	/**
-	 * Returns a new URI based on the given text.
+	 * Returns a new URL based on the given text.
 	 * @param text the text
-	 * @return the URI created
+	 * @return the URL created
 	 * @throws NullPointerException if the given text is {@code null}
-	 * @throws IllegalArgumentException if the given text does not represent a valid URI
+	 * @throws IllegalArgumentException if the given text does not represent a valid URL
 	 */
-	static public URI newURI (final String text) throws NullPointerException, IllegalArgumentException {
+	static public URL newURL (final String text) throws NullPointerException, IllegalArgumentException {
 		try {
-			return new URI(text);
-		} catch (final URISyntaxException e) {
+			return new URL(text);
+		} catch (final MalformedURLException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}

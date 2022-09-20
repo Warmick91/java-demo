@@ -1,4 +1,6 @@
 USE seminarverwaltung;
+SET CHARACTER SET utf8mb4;
+BEGIN;
 
 INSERT INTO Seminar VALUES (1, "Java", "Eine kleine Einfuehrung in Java");
 INSERT INTO Seminar VALUES (2, "Java DB", "Vertiefung von Java und Datenbanken");
@@ -11,6 +13,8 @@ INSERT INTO Veranstaltungen VALUES (2, 1, "Muenchen", NULL);
 INSERT INTO Veranstaltungen VALUES (3, 2, "Hamburg", NULL);
 INSERT INTO Veranstaltungen VALUES (4, 3, "Duesseldorf", NULL);
 
+COMMIT;
 SELECT * FROM Seminar;
 SELECT * FROM Veranstaltungen;
 SELECT * FROM Teilnehmer;
+

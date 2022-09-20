@@ -2,6 +2,7 @@ package edu.damago.java.objectbased;
 
 /**
  * Demo for enum types.
+ * @author Sascha Baumeister
  */
 public class EnumDemo {
 	static public enum Gender { DIVERSE, FEMALE, MALE }

@@ -2,6 +2,7 @@ package edu.damago.java.objectbased;
 
 /**
  * Enum instances representing chess pieces.
+ * @author Sascha Baumeister
  */
 public enum ChessPiece {
 	BLACK_PAWN(true, '\u265F', 'p'),

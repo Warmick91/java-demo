@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /**
  * Demo for parameter strategies.
+ * @author Sascha Baumeister
  */
 public class ParameterStrategyDemo {
 
