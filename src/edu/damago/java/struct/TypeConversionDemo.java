@@ -8,6 +8,7 @@ import java.util.Set;
 
 /**
  * Demo for type conversions.
+ * @author Sascha Baumeister
  */
 public class TypeConversionDemo {
 

@@ -2,6 +2,7 @@ package edu.damago.java.objectbased;
 
 /**
  * Demo for compiletime and runtime constants.
+ * @author Sascha Baumeister
  */
 @SuppressWarnings("unused")
 public class ConstantDemo {

@@ -2,6 +2,7 @@ package edu.damago.java.struct;
 
 /**
  * Demo for padding texts using two options for realization.
+ * @author Sascha Baumeister
  */
 public class PaddingDemo {
 	static final int PADING_LENGTH = 50_000;

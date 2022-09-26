@@ -8,6 +8,7 @@ import java.util.Map;
 
 /**
  * Demo for list usage.
+ * @author Sascha Baumeister
  */
 public class ListDemo {
 
