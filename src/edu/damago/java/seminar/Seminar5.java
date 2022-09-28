@@ -1,4 +1,4 @@
-package edu.damago.java.sql;
+package edu.damago.java.seminar;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,4 +1,4 @@
-package edu.damago.java.sql;
+package edu.damago.java.seminar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,9 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import edu.damago.java.tool.JSON;
-import edu.damago.java.tool.RelationalDatabases;
 
 
 /**
@@ -17,22 +15,7 @@ import edu.damago.java.tool.RelationalDatabases;
  * a weakly typed model and tool class RelationalDatabases.
  * @author Sascha Baumeister
  */
-public class Seminar2Demo {
-	static private final String CONNECTION_URL_ACCESS = "jdbc:ucanaccess://D:/db1.accdb";
-	static private final String CONNECTION_URL_MYSQL = "jdbc:mysql://localhost:3306/seminarverwaltung";
-	static private final String CONNECTION_URL_MARIADB = "jdbc:mariadb://localhost:3306/seminarverwaltung";
-
-	static private final String QUERY_SEMINAR = "SELECT * FROM Seminar WHERE SemNr = ?";
-	static private final String QUERY_SEMINARS = "SELECT * FROM Seminar WHERE " 
-		+ "(? IS NULL OR Thema = ?) AND "
-		+ "(? IS NULL OR LOWER(Beschreibung) LIKE ?) AND "
-		+ "(? IS NULL OR SemNr >= ?) AND "
-		+ "(? IS NULL OR SemNr <= ?)";
-
-	static private final String INSERT_SEMINAR = "INSERT INTO Seminar VALUES (?,?,?)";
-	static private final String DELETE_SEMINAR = "DELETE FROM Seminar WHERE SemNr = ?";
-	static private final String UPDATE_SEMINAR = "UPDATE Seminar SET Thema=?,Beschreibung=? WHERE SemNr = ?";
-		
+public class Seminar5Demo {
 
 	/**
 	 * Application entry point.
@@ -43,7 +26,7 @@ public class Seminar2Demo {
 	static public void main (final String[] args) throws IOException, SQLException {
 		final BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
-		try (Connection jdbcConnection = newJdbcConnection()) {
+		try (Connection jdbcConnection = newJdbcConnection(DatabaseType.MYSQL)) {
 			System.out.println("Connected: " + jdbcConnection.getMetaData().getDatabaseProductName());
 
 			while (true) {
@@ -102,45 +85,7 @@ public class Seminar2Demo {
 
 
 	/**
-	 * Returns a connection either with MS Access, MySQL or MariaDB.
-	 * @return the database connection created
-	 * @throws SQLException if there is neither an MS Access, MySQL nor MariaDB available
-	 */
-	static private Connection newJdbcConnection () throws SQLException {
-
-		// Class.forName() is only required until Java 1.8 (inclusive), and for the JavaDB certification!
-		try {
-			Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
-		} catch (Exception e) {
-			// do nothing
-		}
-
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (Exception e) {
-			// do nothing
-		}
-
-		try {
-			Class.forName("org.mariadb.jdbc.Driver");
-		} catch (Exception e) {
-			// do nothing
-		}
-
-		try {
-			return DriverManager.getConnection(CONNECTION_URL_ACCESS, "Administrator", "damago");
-		} catch (final SQLException e) {
-			try {
-				return DriverManager.getConnection(CONNECTION_URL_MYSQL, "root", "root");
-			} catch (final SQLException ex) {
-				return DriverManager.getConnection(CONNECTION_URL_MARIADB, "root", "root");
-			}
-		}
-	}
-
-
-	/**
-	 * Best practice: Processes displaying seminars.
+	 * Processes displaying seminars.
 	 * @param jdbcConnection the JDBC connection
 	 * @param arguments the arguments
 	 * @throws SQLException if there is an SQL related problem
@@ -160,31 +105,33 @@ public class Seminar2Demo {
 			if (parameters.length > 3 && !parameters[3].isEmpty()) upperID = Long.parseLong(parameters[3]);
 		}
 
-		final List<Map<String,Object>> rowMaps = RelationalDatabases.executeQuery(jdbcConnection, QUERY_SEMINARS, title, title, description, description, lowerID, lowerID, upperID, upperID);
-		for (final Map<String,Object> rowMap : rowMaps)
-			System.out.println(JSON.stringify(rowMap));
+		final List<Seminar5> seminars = Seminar5.querySeminars(jdbcConnection, title, description, lowerID, upperID);
+		for (final Seminar5 seminar : seminars)
+			System.out.println(JSON.stringify(seminar.toMap()));
 	}
 
 
 	/**
-	 * Best practice: Processes displaying one seminar.
+	 * Processes displaying one seminar.
 	 * @param jdbcConnection the JDBC connection
 	 * @param arguments the arguments
 	 * @throws SQLException if there is an SQL related problem
 	 */
 	static private void processQuerySeminarCommand (final Connection jdbcConnection, final String arguments) throws SQLException {
-		final long id = Long.parseLong(arguments);
+		final Seminar5 seminar = new Seminar5();
+		seminar.setIdentity(Long.parseLong(arguments));
 
-		final List<Map<String,Object>> rowMaps = RelationalDatabases.executeQuery(jdbcConnection, QUERY_SEMINAR, id);
-		if (rowMaps.isEmpty())
+		try {
+			seminar.refresh(jdbcConnection);
+			System.out.println(JSON.stringify(seminar.toMap()));
+		} catch (IllegalStateException | SQLException e) {
 			System.out.println("no results!");
-		else
-			System.out.println(JSON.stringify(rowMaps.get(0)));
+		}
 	}
 
 
 	/**
-	 * Best practice: Processes inserting one seminar.
+	 * Processes inserting one seminar.
 	 * @param jdbcConnection the JDBC connection
 	 * @param arguments the arguments
 	 * @throws SQLException if there is an SQL related problem
@@ -194,23 +141,13 @@ public class Seminar2Demo {
 		final int delimiterPositionB = arguments.indexOf(';', delimiterPositionA + 1);
 		if (delimiterPositionA == -1 | delimiterPositionB == -1) throw new IllegalArgumentException("illegal argument syntax!");		
 
-		long id = Long.parseLong(arguments.substring(0, delimiterPositionA).trim());
-		final String title = arguments.substring(delimiterPositionA + 1, delimiterPositionB).trim();
-		final String description = arguments.substring(delimiterPositionB + 1).trim();
+		final Seminar5 seminar = new Seminar5();
+		seminar.setIdentity(Long.parseLong(arguments.substring(0, delimiterPositionA).trim()));
+		seminar.setTitle(arguments.substring(delimiterPositionA + 1, delimiterPositionB).trim());
+		seminar.setDescription(arguments.substring(delimiterPositionB + 1).trim());
 
-		final long rowCount;
-		if (id == 0) {
-			final long[][] generatedValues = RelationalDatabases.executeChange2(jdbcConnection, INSERT_SEMINAR, id, title, description);
-			final long generatedValue = generatedValues[0][0];
-			System.out.println("generated SemNr = " + generatedValue);
-
-			rowCount = generatedValues.length;
-		} else {
-			rowCount = RelationalDatabases.executeChange1(jdbcConnection, INSERT_SEMINAR, id, title, description);
-		}
-
-		if (rowCount != 1) throw new IllegalStateException("insert command failed!");
-		System.out.println("ok.");
+		seminar.insert(jdbcConnection);
+		System.out.println("inserted seminar " + seminar.getIdentity());
 	}
 
 
@@ -225,29 +162,52 @@ public class Seminar2Demo {
 		final int delimiterPositionB = arguments.indexOf(';', delimiterPositionA + 1);
 		if (delimiterPositionA == -1 | delimiterPositionB == -1) throw new IllegalArgumentException("illegal argument syntax!");		
 
-		final long id = Long.parseLong(arguments.substring(0, delimiterPositionA).trim());
-		final String title = arguments.substring(delimiterPositionA + 1, delimiterPositionB).trim();
-		final String description = arguments.substring(delimiterPositionB + 1).trim();
+		final Seminar5 seminar = new Seminar5();
+		seminar.setIdentity(Long.parseLong(arguments.substring(0, delimiterPositionA).trim()));
+		seminar.setTitle(arguments.substring(delimiterPositionA + 1, delimiterPositionB).trim());
+		seminar.setDescription(arguments.substring(delimiterPositionB + 1).trim());
 
-		final long rowCount = RelationalDatabases.executeChange1(jdbcConnection, UPDATE_SEMINAR, title, description, id);
-		if (rowCount != 1) throw new IllegalStateException("update command failed!");
-
+		seminar.update(jdbcConnection);
 		System.out.println("ok.");	
 	}
 
 
 	/**
-	 * Best practice: Processes deleting one seminar.
+	 * Processes deleting one seminar.
 	 * @param jdbcConnection the JDBC connection
 	 * @param arguments the arguments
 	 * @throws SQLException if there is an SQL related problem
 	 */
 	static private void processDeleteSeminarCommand (final Connection jdbcConnection, final String arguments) throws SQLException {
-		final long id = Long.parseLong(arguments);
+		final Seminar5 seminar = new Seminar5();
+		seminar.setIdentity(Long.parseLong(arguments));
 
-		final long rowCount = RelationalDatabases.executeChange1(jdbcConnection, DELETE_SEMINAR, id);
-		if (rowCount != 1) throw new IllegalStateException("delete command failed!");
-
+		seminar.delete(jdbcConnection);
 		System.out.println("ok.");	
+	}
+
+
+	/**
+	 * Connects to the given database type, and returns the resulting JDBC connection.
+	 * @param databaseType the database type
+	 * @return the JDBC connection created
+	 * @throws NullPointerException if the given argument is {@code null}
+	 * @throws SQLException if there is an SQL related problem
+	 */
+	static private Connection newJdbcConnection (final DatabaseType type) throws NullPointerException, SQLException {
+		switch (type) {
+			case MYSQL:
+				return DriverManager.getConnection("jdbc:mysql://localhost:3306/seminarverwaltung", "root", "root");
+			case MARIA_DB:
+				return DriverManager.getConnection("jdbc:mariadb://localhost:3306/seminarverwaltung", "root", "root");
+			case ORACLE_DB:
+				return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "SYSTEM", "root");
+			case MS_ACCESS:
+				return DriverManager.getConnection("jdbc:ucanaccess://D:/db1.accdb", "Administrator", "damago");
+			case ODBC:
+				return DriverManager.getConnection("jdbc:odbc:seminarverwaltung", "Administrator", "damago");
+			default:
+				throw new AssertionError();
+		}
 	}
 }
